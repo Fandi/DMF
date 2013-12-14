@@ -35,10 +35,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>TOJO.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>夢.ico</ApplicationIcon>
@@ -71,7 +72,6 @@
     <EmbeddedResource Include="DataModelFormat.xsd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="TOJO.pfx" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="夢.ico" />
