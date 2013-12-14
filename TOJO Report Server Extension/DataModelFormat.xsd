@@ -58,27 +58,40 @@
 			</xsd:extension>
 		</xsd:simpleContent>
 	</xsd:complexType>
+	<xsd:complexType name="GroupType">
+		<xsd:sequence>
+			<xsd:element name="Index"
+						 type="xsd:int"
+						 minOccurs="0"
+						 maxOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
 	<xsd:complexType name="ValueType">
 		<xsd:simpleContent>
 			<xsd:extension base="xsd:string">
-				<xsd:attribute name="Optional" 
-							   type="xsd:boolean" 
-							   use="optional" 
+				<xsd:attribute name="Optional"
+							   type="xsd:boolean"
+							   use="optional"
 							   default="false" />
 			</xsd:extension>
 		</xsd:simpleContent>
 	</xsd:complexType>
 	<xsd:complexType name="ValuesType">
 		<xsd:sequence minOccurs="0">
-			<xsd:element name="Value" 
+			<xsd:element name="Value"
 						 type="ValueType" />
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:complexType name="FieldType">
 		<xsd:sequence>
+			<xsd:element name="Group"
+						 type="GroupType"
+						 minOccurs="0"
+						 maxOccurs="1" />
 			<xsd:element name="Values"
 						 type="ValuesType"
-						 minOccurs="0" />
+						 minOccurs="0"
+						 maxOccurs="1" />
 			<xsd:choice minOccurs="0"
 						maxOccurs="unbounded">
 				<xsd:element name="DataField"
