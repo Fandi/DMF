@@ -1,0 +1,14 @@
+﻿<Configuration>
+	<Extensions>
+		<Data>
+			<Extension Name="TOJO Data Source" Type="TOJO.ReportServerExtension.Connection, TOJO.ReportServerExtension">
+				<Configuration>
+					<ExtensionConfiguration>
+						<SpecificationFolder><![CDATA[Set your specification folder here. e.g. ${Your project folder path}/dmf]]></SpecificationFolder>
+						<FileExtension><![CDATA[.dmf]]></FileExtension>
+					</ExtensionConfiguration>
+				</Configuration>
+			</Extension>
+		</Data>
+	</Extensions>
+</Configuration>

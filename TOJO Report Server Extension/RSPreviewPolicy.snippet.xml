@@ -1,0 +1,22 @@
+﻿<configuration>
+	<mscorlib>
+		<security>
+			<policy>
+				<PolicyLevel version="1">
+					<CodeGroup class="UnionCodeGroup"
+							   version="1"
+							   PermissionSetName="FullTrust"
+							   Name="TOJOReportServerExtension_CodeGroup"
+							   Description="This code group grants TOJO.ReportServerExtension.dll full trust.">
+						<IMembershipCondition class="UrlMembershipCondition"
+											  version="1"
+											  Url="C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\PrivateAssemblies\TOJO.ReportServerExtension.dll" />
+						<!--
+							Typically, you need to put the generated assembly to SSDT-BI's PrivateAssemblies folder.
+						-->
+					</CodeGroup>
+				</PolicyLevel>
+			</policy>
+		</security>
+	</mscorlib>
+</configuration>

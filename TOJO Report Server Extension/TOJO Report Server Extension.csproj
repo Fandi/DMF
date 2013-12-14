@@ -76,6 +76,10 @@
   <ItemGroup>
     <EmbeddedResource Include="夢.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="RSPreviewPolicy.snippet.xml" />
+    <Content Include="RSReportDesigner.snippet.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
