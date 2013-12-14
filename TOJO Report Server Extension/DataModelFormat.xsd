@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema id="DataModelFormat"
+			targetNamespace="http://name.or.id/TOJO/Data Model Format/20cfc9af-683f-4c82-8968-706f5dcb0396"
+			xmlns="http://name.or.id/TOJO/Data Model Format/20cfc9af-683f-4c82-8968-706f5dcb0396"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			elementFormDefault="qualified">
+	<xsd:annotation>
+		<xsd:documentation>
+			Just a fragment of http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition XML schema's Fields element. With a little tweak here and there.
+		</xsd:documentation>
+	</xsd:annotation>
+	<xsd:annotation>
+		<xsd:documentation>
+
+			The following schema describes the structure of the
+			Report Definition Language (RDL) for Microsoft SQL Server 2008 R2.
+
+			THE SCHEMA IS PROVIDED TO YOU ON AN "AS IS" BASIS, AND MICROSOFT
+			DISCLAIMS ALL WARRANTIES, EXPRESS, IMPLIED OR STATUTORY,   INCLUDING,
+			WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+			FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, AS TO THE SCHEMA OR ANY
+			PRODUCT OR OTHER ITEM THAT MAY BE DEVELOPED USING THE SCHEMA.
+
+			Without limiting the generality of the foregoing, Microsoft makes no
+			warranty that any product or other item that may be developed using the
+			schema, or any portion of the schema, will not infringe any copyright,
+			patent, trade secret or other intellectual property right of any
+			individual or legal entity in any country. It is your responsibility to
+			obtain licenses to use any such intellectual property rights as appropriate.
+
+			MICROSOFT IS NOT LIABLE FOR ANY DAMAGES OF ANY KIND ARISING OUT OF OR IN
+			CONNECTION WITH THE USE OF THE SCHEMA, INCLUDING, WITHOUT LIMITATION, ANY
+			DIRECT, INDIRECT, INCIDENTAL, CONSEQUENTIAL (INCLUDING LOST REVENUES OR LOST
+			PROFITS), PUNITIVE OR SPECIAL DAMAGES, WHETHER OR NOT MICROSOFT HAS BEEN
+			ADVISED OF SUCH DAMAGES.
+
+			(c) Microsoft Corporation.  All rights reserved.
+
+		</xsd:documentation>
+	</xsd:annotation>
+	<xsd:complexType name="StringWithDataTypeAttribute">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="DataType"
+							   use="optional">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="Boolean" />
+							<xsd:enumeration value="DateTime" />
+							<xsd:enumeration value="Integer" />
+							<xsd:enumeration value="Float" />
+							<xsd:enumeration value="String" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:attribute>
+				<xsd:anyAttribute namespace="##other"
+								  processContents="lax" />
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="ValueType">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="Optional" 
+							   type="xsd:boolean" 
+							   use="optional" 
+							   default="false" />
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="ValuesType">
+		<xsd:sequence minOccurs="0">
+			<xsd:element name="Value" 
+						 type="ValueType" />
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="FieldType">
+		<xsd:sequence>
+			<xsd:element name="Values"
+						 type="ValuesType"
+						 minOccurs="0" />
+			<xsd:choice minOccurs="0"
+						maxOccurs="unbounded">
+				<xsd:element name="DataField"
+							 type="xsd:string"
+							 minOccurs="0" />
+				<xsd:element name="Value"
+							 type="StringWithDataTypeAttribute"
+							 minOccurs="0" />
+				<xsd:any namespace="##other"
+						 processContents="lax" />
+			</xsd:choice>
+		</xsd:sequence>
+		<xsd:attribute name="Name"
+					   type="xsd:normalizedString"
+					   use="required" />
+		<xsd:attribute name="Nullable"
+					   type="xsd:boolean"
+					   use="optional"
+					   default="false" />
+		<xsd:anyAttribute namespace="##other"
+						  processContents="lax" />
+	</xsd:complexType>
+	<xsd:complexType name="FieldsType">
+		<xsd:sequence>
+			<xsd:element name="Field"
+						 type="FieldType" />
+		</xsd:sequence>
+		<xsd:anyAttribute namespace="##other"
+						  processContents="lax" />
+	</xsd:complexType>
+	<xsd:element name="Fields"
+				 type="FieldsType" />
+</xsd:schema>
