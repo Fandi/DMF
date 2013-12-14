@@ -14,7 +14,7 @@ namespace TOJO.ReportServerExtension
 		{
 			ConnectionString = string.Empty;
 			ConnectionTimeout = 5;
-			LocalizedName = typeof(Connection).FullName;
+			LocalizedName = "TOJO Data Source";
 		}
 
 		public IDbTransaction BeginTransaction()
