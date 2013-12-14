@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("TOJO Report Server Extension")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("DMF, or Data Model Format, is a simple data processing extension for SSRS on SQL Server Data Tools - Business Intelligence.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("TOJO Report Server Extension")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCopyright("Microsoft Public License (Ms-PL)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
