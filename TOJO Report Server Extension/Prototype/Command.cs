@@ -50,7 +50,7 @@ namespace TOJO.ReportServerExtension.Prototype
 		{
 			#region DMF Specification
 			if (CommandType != CommandType.Text ||
-					string.IsNullOrEmpty(CommandText.Trim()))
+				string.IsNullOrEmpty(CommandText.Trim()))
 			{
 				return dataTable;
 			}
@@ -99,9 +99,6 @@ namespace TOJO.ReportServerExtension.Prototype
 				return dataTable;
 			}
 
-			XmlNamespaceManager namespaceManager = new XmlNamespaceManager(specXML.NameTable);
-			namespaceManager.AddNamespace("rd", DataSourceConfiguration.ReportDesignerSchemaURI);
-
 			#region Min and Max Values
 			int min = -1;
 			int max = -1;
@@ -123,8 +120,71 @@ namespace TOJO.ReportServerExtension.Prototype
 			#region Data schema
 			foreach (XmlNode field in specXML.SelectNodes("/Fields/Field"))
 			{
-				string columnName = field.Attributes["Name"].Value;
-				string dataType = field.SelectSingleNode("./rd:TypeName", namespaceManager).InnerText;
+				string columnName;
+				string dataType;
+
+				#region Field name and data type
+				XmlNode fieldNode = field.SelectSingleNode("./DataField");
+
+				if (fieldNode == null)
+				{
+					fieldNode = field.SelectSingleNode("./Value");
+
+					if (fieldNode == null)
+					{
+						continue;
+					}
+
+					columnName = fieldNode.InnerText;
+
+					XmlAttribute dataTypeAttribute = fieldNode.Attributes["DataType"];
+
+					if (dataTypeAttribute == null)
+					{
+						dataType = "System.String";
+					}
+					else
+					{
+						switch (dataTypeAttribute.Value)
+						{
+							case "Boolean":
+								dataType = "System.Boolean";
+								break;
+							case "DateTime":
+								dataType = "System.DateTime";
+								break;
+							case "Integer":
+								dataType = "System.Int32";
+								break;
+							case "Float":
+								dataType = "System.Decimal";
+								break;
+							case "String":
+							default:
+								dataType = "System.String";
+								break;
+						}
+					}
+				}
+				else
+				{
+					columnName = fieldNode.InnerText;
+
+					XmlNamespaceManager namespaceManager = new XmlNamespaceManager(specXML.NameTable);
+					namespaceManager.AddNamespace("rd", DataSourceConfiguration.ReportDesignerSchemaURI);
+					XmlNode dataTypeNode = field.SelectSingleNode("./rd:TypeName", namespaceManager);
+
+					if (dataTypeNode == null)
+					{
+						dataType = "System.String";
+					}
+					else
+					{
+						dataType = dataTypeNode.InnerText;
+					}
+				}
+				#endregion
+
 				sd.DataColumn column = new sd.DataColumn(columnName);
 
 				#region Group By
