@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TOJO.ReportServerExtension.Prototype
+﻿namespace TOJO.ReportServerExtension.Prototype
 {
 	internal class Group
 	{

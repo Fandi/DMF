@@ -13,7 +13,8 @@ namespace TOJO.ReportServerExtension.Prototype
 	{
 		private Random rnd;
 		private sd.DataTable dataTable;
-		private List<Group> groupByList;
+		private List<Group> groups;
+		private List<GroupField> groupFields;
 
 		public string CommandText { get; set; }
 		public int CommandTimeout { get; set; }
@@ -26,7 +27,8 @@ namespace TOJO.ReportServerExtension.Prototype
 		{
 			rnd = new Random(DateTime.Now.GetHashCode());
 			dataTable = new sd.DataTable();
-			groupByList = new List<Group>();
+			groups = new List<Group>();
+			groupFields = new List<GroupField>();
 
 			Configuration = configuration;
 			CommandText = string.Empty;
@@ -106,7 +108,7 @@ namespace TOJO.ReportServerExtension.Prototype
 			if (specXML.DocumentElement.Attributes["Max"] == null ||
 				!int.TryParse(specXML.DocumentElement.Attributes["Max"].Value, out max))
 			{
-				max = 5;
+				max = 50;
 			}
 
 			if (specXML.DocumentElement.Attributes["Min"] == null ||
@@ -123,7 +125,7 @@ namespace TOJO.ReportServerExtension.Prototype
 				string columnName;
 				string dataType;
 
-				#region Field name and data type
+				#region Column name and data type
 				XmlNode fieldNode = field.SelectSingleNode("./DataField");
 
 				if (fieldNode == null)
@@ -187,12 +189,39 @@ namespace TOJO.ReportServerExtension.Prototype
 
 				sd.DataColumn column = new sd.DataColumn(columnName);
 
-				#region Group By
-				XmlNode groupBy = field.SelectSingleNode("./Group");
+				#region Group
+				XmlNode group = field.SelectSingleNode("./Group");
 
-				if (groupBy != null)
+				if (group != null)
 				{
-					groupByList.Add(new Group(int.Parse(groupBy.SelectSingleNode("./Index").InnerText), columnName));
+					if (group.Attributes["Index"] != null)
+					{
+						groups.Add(
+							new Group(
+								int.Parse(group.Attributes["Index"].Value),
+								columnName
+							)
+						);
+					}
+					else if (group.Attributes["Ref"] != null)
+					{
+						groupFields.Add(
+							new GroupField(
+								group.Attributes["Ref"].Value,
+								columnName
+							)
+						);
+					}
+					else
+					{
+						// Backward compatibility
+						groups.Add(
+							new Group(
+								int.Parse(group.SelectSingleNode("./Index").InnerText),
+								columnName
+							)
+						);
+					}
 				}
 				#endregion
 
@@ -438,12 +467,12 @@ namespace TOJO.ReportServerExtension.Prototype
 			if (behavior == CommandBehavior.SingleResult &&
 				dataTable.Columns.Count > 0)
 			{
-				groupByList = groupByList.OrderBy((group) =>
+				groups = groups.OrderBy((group) =>
 				{
 					return group.Index;
 				}, Comparer<int>.Default).ToList();
 
-				if (groupByList.Count > 0)
+				if (groups.Count > 0)
 				{
 					FillDataRowByGroup(0, min, max, dataTable.NewRow());
 				}
@@ -461,7 +490,7 @@ namespace TOJO.ReportServerExtension.Prototype
 		protected void FillDataRowByGroup(int groupByIndex, int min, int max, sd.DataRow row)
 		{
 			List<object> availableValues = new List<object>();
-			sd.DataColumn groupByColumn = dataTable.Columns[groupByList[groupByIndex].ColumnName];
+			sd.DataColumn groupByColumn = dataTable.Columns[groups[groupByIndex].ColumnName];
 
 			for (int i = 0; i < (groupByColumn.ExtendedProperties["Values"] as List<object>).Count; i++)
 			{
@@ -483,9 +512,10 @@ namespace TOJO.ReportServerExtension.Prototype
 			{
 				foreach (object availableValue in availableValues)
 				{
-					row[groupByList[groupByIndex].ColumnName] = availableValue;
+					row[groups[groupByIndex].ColumnName] = availableValue;
+					FillDataColumnByGroup(groups[groupByIndex].ColumnName, ref row);
 
-					if (groupByIndex == groupByList.Count - 1)
+					if (groupByIndex == groups.Count - 1)
 					{
 						FillDataRowByQuantity(min, max, row);
 					}
@@ -497,9 +527,10 @@ namespace TOJO.ReportServerExtension.Prototype
 			}
 			else
 			{
-				row[groupByList[groupByIndex].ColumnName] = groupByColumn.DefaultValue;
+				row[groups[groupByIndex].ColumnName] = groupByColumn.DefaultValue;
+				FillDataColumnByGroup(groups[groupByIndex].ColumnName, ref row);
 
-				if (groupByIndex == groupByList.Count - 1)
+				if (groupByIndex == groups.Count - 1)
 				{
 					FillDataRowByQuantity(min, max, row);
 				}
@@ -526,45 +557,69 @@ namespace TOJO.ReportServerExtension.Prototype
 
 			foreach (sd.DataColumn column in dataTable.Columns)
 			{
-				if (object.Equals(groupByList.FirstOrDefault((group) =>
+				if (
+					// Is a group
+					!object.Equals(groups.FirstOrDefault((group) =>
+					{
+						return group.ColumnName == column.ColumnName;
+					}), default(Group)) ||
+
+					// Is a group column
+					!object.Equals(groupFields.FirstOrDefault((groupColumn) =>
+					{
+						return groupColumn.ColumnName == column.ColumnName;
+					}), default(GroupField)))
 				{
-					return group.ColumnName == column.ColumnName;
-				}), default(Group)))
-				{
-					List<object> availableValues = new List<object>();
-
-					for (int i = 0; i < (column.ExtendedProperties["Values"] as List<object>).Count; i++)
-					{
-						if ((bool)(column.ExtendedProperties["Optional"] as List<bool>)[i] &&
-							rnd.Next(2).Equals(0))
-						{
-							continue;
-						}
-
-						availableValues.Add((column.ExtendedProperties["Values"] as List<object>)[i]);
-					}
-
-					if (column.AllowDBNull)
-					{
-						availableValues.Add(DBNull.Value);
-					}
-
-					if (availableValues.Count > 0)
-					{
-						rowToBeAdded[column.ColumnName] = availableValues[rnd.Next(availableValues.Count)];
-					}
-					else
-					{
-						rowToBeAdded[column.ColumnName] = column.DefaultValue;
-					}
+					rowToBeAdded[column.ColumnName] = row[column.ColumnName];
 				}
 				else
 				{
-					rowToBeAdded[column.ColumnName] = row[column.ColumnName];
+					rowToBeAdded[column.ColumnName] = GenerateDataColumnValue(column);
 				}
 			}
 
 			dataTable.Rows.Add(rowToBeAdded);
+		}
+
+		protected void FillDataColumnByGroup(string groupRef, ref sd.DataRow row)
+		{
+			foreach (GroupField groupField in groupFields.Where((groupField) =>
+			{
+				return groupField.Reference == groupRef;
+			}))
+			{
+				row[groupField.ColumnName] = GenerateDataColumnValue(dataTable.Columns[groupField.ColumnName]);
+			}
+		}
+
+		protected object GenerateDataColumnValue(sd.DataColumn column)
+		{
+			List<object> availableValues = new List<object>();
+
+			for (int i = 0; i < (column.ExtendedProperties["Values"] as List<object>).Count; i++)
+			{
+				if ((bool)(column.ExtendedProperties["Optional"] as List<bool>)[i] &&
+					rnd.Next(2).Equals(0))
+				{
+					continue;
+				}
+
+				availableValues.Add((column.ExtendedProperties["Values"] as List<object>)[i]);
+			}
+
+			if (column.AllowDBNull)
+			{
+				availableValues.Add(DBNull.Value);
+			}
+
+			if (availableValues.Count > 0)
+			{
+				return availableValues[rnd.Next(availableValues.Count)];
+			}
+			else
+			{
+				return column.DefaultValue;
+			}
 		}
 
 		public void Cancel() { }

@@ -2,6 +2,7 @@
 <xsd:schema id="DataModelFormat"
 			targetNamespace="http://name.or.id/TOJO/Data Model Format/20cfc9af-683f-4c82-8968-706f5dcb0396"
 			xmlns="http://name.or.id/TOJO/Data Model Format/20cfc9af-683f-4c82-8968-706f5dcb0396"
+			xmlns:this="http://name.or.id/TOJO/Data Model Format/20cfc9af-683f-4c82-8968-706f5dcb0396"
 			xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 			elementFormDefault="qualified">
 	<xsd:annotation>
@@ -59,12 +60,12 @@
 		</xsd:simpleContent>
 	</xsd:complexType>
 	<xsd:complexType name="GroupType">
-		<xsd:sequence>
-			<xsd:element name="Index"
-						 type="xsd:int"
-						 minOccurs="0"
-						 maxOccurs="1" />
-		</xsd:sequence>
+		<xsd:attribute name="Index"
+					   type="xsd:int"
+					   use="optional" />
+		<xsd:attribute name="Ref"
+					   type="xsd:normalizedString"
+					   use="optional" />
 	</xsd:complexType>
 	<xsd:complexType name="ValueType">
 		<xsd:simpleContent>
@@ -77,9 +78,11 @@
 		</xsd:simpleContent>
 	</xsd:complexType>
 	<xsd:complexType name="ValuesType">
-		<xsd:sequence minOccurs="0">
+		<xsd:sequence>
 			<xsd:element name="Value"
-						 type="ValueType" />
+						 type="ValueType"
+						 minOccurs="0"
+						 maxOccurs="unbounded" />
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:complexType name="FieldType">
@@ -87,7 +90,8 @@
 			<xsd:element name="Group"
 						 type="GroupType"
 						 minOccurs="0"
-						 maxOccurs="1" />
+						 maxOccurs="1">
+			</xsd:element>
 			<xsd:element name="Values"
 						 type="ValuesType"
 						 minOccurs="0"
@@ -117,8 +121,14 @@
 	<xsd:complexType name="FieldsType">
 		<xsd:sequence>
 			<xsd:element name="Field"
-						 type="FieldType" />
+						 type="FieldType"
+						 maxOccurs="unbounded" />
 		</xsd:sequence>
+		<xsd:attribute name="Max"
+					   use="optional"
+					   default="50" />
+		<xsd:attribute name="Min"
+					   use="optional" />
 		<xsd:anyAttribute namespace="##other"
 						  processContents="lax" />
 	</xsd:complexType>

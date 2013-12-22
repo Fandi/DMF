@@ -66,6 +66,7 @@
     <Compile Include="IDataSourceConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Prototype\Group.cs" />
+    <Compile Include="Prototype\GroupField.cs" />
     <Compile Include="Prototype\Transaction.cs" />
   </ItemGroup>
   <ItemGroup>
