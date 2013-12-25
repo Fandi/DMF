@@ -5,15 +5,25 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOJO Report Server Extension", "TOJO Report Server Extension\TOJO Report Server Extension.csproj", "{4DE8C37E-9285-48B2-8D41-DB8B6B2A054E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMF Patch", "DMF Patch\DMF Patch.csproj", "{7AD54F2A-9BC7-448E-8E8E-73B754B617EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMF Patch Loader", "DMF Patch Loader\DMF Patch Loader.csproj", "{C79309D5-D42D-425D-8F02-FF10AC6F20DE}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs19
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = TOJO\u0020Report\u0020Server\u0020Extension\\TOJO\u0020Report\u0020Server\u0020Extension.csproj
 		SccProjectName1 = TOJO\u0020Report\u0020Server\u0020Extension
 		SccLocalPath1 = TOJO\u0020Report\u0020Server\u0020Extension
+		SccProjectUniqueName2 = DMF\u0020Patch\\DMF\u0020Patch.csproj
+		SccProjectName2 = DMF\u0020Patch
+		SccLocalPath2 = DMF\u0020Patch
+		SccProjectUniqueName3 = DMF\u0020Patch\u0020Loader\\DMF\u0020Patch\u0020Loader.csproj
+		SccProjectName3 = DMF\u0020Patch\u0020Loader
+		SccLocalPath3 = DMF\u0020Patch\u0020Loader
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +34,14 @@ Global
 		{4DE8C37E-9285-48B2-8D41-DB8B6B2A054E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DE8C37E-9285-48B2-8D41-DB8B6B2A054E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DE8C37E-9285-48B2-8D41-DB8B6B2A054E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AD54F2A-9BC7-448E-8E8E-73B754B617EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AD54F2A-9BC7-448E-8E8E-73B754B617EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AD54F2A-9BC7-448E-8E8E-73B754B617EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AD54F2A-9BC7-448E-8E8E-73B754B617EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C79309D5-D42D-425D-8F02-FF10AC6F20DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C79309D5-D42D-425D-8F02-FF10AC6F20DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C79309D5-D42D-425D-8F02-FF10AC6F20DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C79309D5-D42D-425D-8F02-FF10AC6F20DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

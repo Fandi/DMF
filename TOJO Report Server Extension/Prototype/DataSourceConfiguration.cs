@@ -6,7 +6,7 @@ using System.Xml.Schema;
 
 namespace TOJO.ReportServerExtension.Prototype
 {
-	internal class DataSourceConfiguration : IDataSourceConfiguration
+	public class DataSourceConfiguration : IDataSourceConfiguration
 	{
 		private static XmlSchema _validatorSchema = null;
 		internal const string ReportDesignerSchemaURI = "http://schemas.microsoft.com/SQLServer/reporting/reportdesigner";
