@@ -224,17 +224,6 @@ namespace TOJO.ReportServerExtension.Prototype
 							)
 						);
 					}
-					else
-					{
-						// Backward compatibility
-						groups.Add(
-							new Group(
-								fieldName,
-								int.Parse(group.SelectSingleNode("./Index").InnerText),
-								columnName
-							)
-						);
-					}
 				}
 				#endregion
 
