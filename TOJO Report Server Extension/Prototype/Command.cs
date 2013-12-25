@@ -127,6 +127,12 @@ namespace TOJO.ReportServerExtension.Prototype
 			#region Data schema
 			foreach (XmlNode field in specXML.SelectNodes("/Fields/Field"))
 			{
+				if (field.Attributes["Name"] == null)
+				{
+					continue;
+				}
+
+				string fieldName = field.Attributes["Name"].Value; ;
 				string columnName;
 				string dataType;
 
@@ -203,6 +209,7 @@ namespace TOJO.ReportServerExtension.Prototype
 					{
 						groups.Add(
 							new Group(
+								fieldName,
 								int.Parse(group.Attributes["Index"].Value),
 								columnName
 							)
@@ -222,6 +229,7 @@ namespace TOJO.ReportServerExtension.Prototype
 						// Backward compatibility
 						groups.Add(
 							new Group(
+								fieldName,
 								int.Parse(group.SelectSingleNode("./Index").InnerText),
 								columnName
 							)
@@ -518,7 +526,7 @@ namespace TOJO.ReportServerExtension.Prototype
 				foreach (object availableValue in availableValues)
 				{
 					row[groups[groupByIndex].ColumnName] = availableValue;
-					FillDataColumnByGroup(groups[groupByIndex].ColumnName, ref row);
+					FillDataColumnByGroup(groups[groupByIndex].Name, ref row);
 
 					if (groupByIndex == groups.Count - 1)
 					{
@@ -533,7 +541,7 @@ namespace TOJO.ReportServerExtension.Prototype
 			else
 			{
 				row[groups[groupByIndex].ColumnName] = groupByColumn.DefaultValue;
-				FillDataColumnByGroup(groups[groupByIndex].ColumnName, ref row);
+				FillDataColumnByGroup(groups[groupByIndex].Name, ref row);
 
 				if (groupByIndex == groups.Count - 1)
 				{
@@ -586,11 +594,11 @@ namespace TOJO.ReportServerExtension.Prototype
 			dataTable.Rows.Add(rowToBeAdded);
 		}
 
-		protected void FillDataColumnByGroup(string groupRef, ref sd.DataRow row)
+		protected void FillDataColumnByGroup(string groupName, ref sd.DataRow row)
 		{
 			foreach (GroupField groupField in groupFields.Where((groupField) =>
 			{
-				return groupField.Reference == groupRef;
+				return groupField.Reference == groupName;
 			}))
 			{
 				row[groupField.ColumnName] = GenerateDataColumnValue(dataTable.Columns[groupField.ColumnName]);
