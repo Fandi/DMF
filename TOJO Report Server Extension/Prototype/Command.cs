@@ -79,7 +79,12 @@ namespace TOJO.ReportServerExtension.Prototype
 							specification = Regex.Unescape(specification);
 						}
 
-						FileInfo specFileInfo = Configuration.SpecificationFolder.GetFiles(specification + ".dmf").FirstOrDefault();
+						FileInfo specFileInfo = new FileInfo(
+							Path.Combine(
+								Configuration.SpecificationFolder.FullName,
+								specification + ".dmf"
+							)
+						);
 
 						if (specFileInfo != null)
 						{
