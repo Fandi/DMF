@@ -211,7 +211,11 @@ namespace TOJO.ReportServerExtension.Prototype
 							new Group(
 								fieldName,
 								int.Parse(group.Attributes["Index"].Value),
-								columnName
+								columnName,
+								group.Attributes["Enum"] != null && (
+									group.Attributes["Enum"].Value.Equals("true") ||
+									group.Attributes["Enum"].Value.Equals("1")
+								)
 							)
 						);
 					}
@@ -492,6 +496,7 @@ namespace TOJO.ReportServerExtension.Prototype
 		protected void FillDataRowByGroup(int groupByIndex, int min, int max, sd.DataRow row)
 		{
 			List<object> availableValues = new List<object>();
+			List<int> availableValueIndices = new List<int>();
 			sd.DataColumn groupByColumn = dataTable.Columns[groups[groupByIndex].ColumnName];
 
 			for (int i = 0; i < (groupByColumn.ExtendedProperties["Values"] as List<object>).Count; i++)
@@ -503,14 +508,15 @@ namespace TOJO.ReportServerExtension.Prototype
 				}
 
 				availableValues.Add((groupByColumn.ExtendedProperties["Values"] as List<object>)[i]);
+				availableValueIndices.Add(i);
 			}
 
 			if (availableValues.Count > 0)
 			{
-				foreach (object availableValue in availableValues)
+				for (int i = 0; i < availableValues.Count; i++)
 				{
-					row[groups[groupByIndex].ColumnName] = availableValue;
-					FillDataColumnByGroup(groups[groupByIndex].Name, ref row);
+					row[groups[groupByIndex].ColumnName] = availableValues[i];
+					FillDataColumnByGroup(groups[groupByIndex], ref row, availableValueIndices[i]);
 
 					if (groupByIndex == groups.Count - 1)
 					{
@@ -533,7 +539,7 @@ namespace TOJO.ReportServerExtension.Prototype
 					row[groups[groupByIndex].ColumnName] = groupByColumn.DefaultValue;
 				}
 
-				FillDataColumnByGroup(groups[groupByIndex].Name, ref row);
+				FillDataColumnByGroup(groups[groupByIndex], ref row);
 
 				if (groupByIndex == groups.Count - 1)
 				{
@@ -579,52 +585,91 @@ namespace TOJO.ReportServerExtension.Prototype
 				}
 				else
 				{
-					rowToBeAdded[column.ColumnName] = GenerateDataColumnValue(column);
+					rowToBeAdded[column.ColumnName] = GenerateDataColumnValueRandomly(column);
 				}
 			}
 
 			dataTable.Rows.Add(rowToBeAdded);
 		}
 
-		protected void FillDataColumnByGroup(string groupName, ref sd.DataRow row)
+		protected void FillDataColumnByGroup(Group group, ref sd.DataRow row, int? groupValueIndex = null)
 		{
 			foreach (GroupField groupField in groupFields.Where((groupField) =>
 			{
-				return groupField.Reference == groupName;
+				return groupField.Reference == group.Name;
 			}))
 			{
-				row[groupField.ColumnName] = GenerateDataColumnValue(dataTable.Columns[groupField.ColumnName]);
+				if (group.IsEnumeration &&
+					groupValueIndex.HasValue)
+				{
+					row[groupField.ColumnName] = GenerateDataColumnValueSequentially(dataTable.Columns[groupField.ColumnName], groupValueIndex.Value);
+				}
+				else
+				{
+					row[groupField.ColumnName] = GenerateDataColumnValueRandomly(dataTable.Columns[groupField.ColumnName]);
+				}
 			}
 		}
 
-		protected object GenerateDataColumnValue(sd.DataColumn column)
+		protected object GenerateDataColumnValueSequentially(sd.DataColumn column, int valueIndex)
 		{
-			List<object> availableValues = new List<object>();
-
-			for (int i = 0; i < (column.ExtendedProperties["Values"] as List<object>).Count; i++)
+			if (valueIndex > (column.ExtendedProperties["Values"] as List<object>).Count - 1)
 			{
-				if ((bool)(column.ExtendedProperties["Optional"] as List<bool>)[i] &&
-					rnd.Next(2).Equals(0))
+				if (column.AllowDBNull)
 				{
-					continue;
+					return DBNull.Value;
 				}
-
-				availableValues.Add((column.ExtendedProperties["Values"] as List<object>)[i]);
-			}
-
-			if (column.AllowDBNull)
-			{
-				availableValues.Add(DBNull.Value);
-			}
-
-			if (availableValues.Count > 0)
-			{
-				return availableValues[rnd.Next(availableValues.Count)];
+				else
+				{
+					return column.DefaultValue;
+				}
 			}
 			else
 			{
-				return column.DefaultValue;
+				return (column.ExtendedProperties["Values"] as List<object>)[valueIndex];
 			}
+		}
+
+		protected object GenerateDataColumnValueRandomly(sd.DataColumn column)
+		{
+			List<object> availableValues = new List<object>();
+
+			if ((column.ExtendedProperties["Values"] as List<object>).Count == 0)
+			{
+				availableValues.Add(column.DefaultValue);
+
+				if (column.AllowDBNull)
+				{
+					availableValues.Add(DBNull.Value);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < (column.ExtendedProperties["Values"] as List<object>).Count; i++)
+				{
+					if ((bool)(column.ExtendedProperties["Optional"] as List<bool>)[i] &&
+						rnd.Next(2).Equals(0))
+					{
+						continue;
+					}
+
+					availableValues.Add((column.ExtendedProperties["Values"] as List<object>)[i]);
+				}
+
+				if (availableValues.Count == 0)
+				{
+					if (column.AllowDBNull)
+					{
+						availableValues.Add(DBNull.Value);
+					}
+					else
+					{
+						availableValues.Add(column.DefaultValue);
+					}
+				}
+			}
+
+			return availableValues[rnd.Next(availableValues.Count)];
 		}
 
 		public void Cancel() { }
