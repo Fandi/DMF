@@ -505,11 +505,6 @@ namespace TOJO.ReportServerExtension.Prototype
 				availableValues.Add((groupByColumn.ExtendedProperties["Values"] as List<object>)[i]);
 			}
 
-			if (groupByColumn.AllowDBNull)
-			{
-				availableValues.Add(DBNull.Value);
-			}
-
 			if (availableValues.Count > 0)
 			{
 				foreach (object availableValue in availableValues)
@@ -529,7 +524,15 @@ namespace TOJO.ReportServerExtension.Prototype
 			}
 			else
 			{
-				row[groups[groupByIndex].ColumnName] = groupByColumn.DefaultValue;
+				if (groupByColumn.AllowDBNull)
+				{
+					row[groups[groupByIndex].ColumnName] = DBNull.Value;
+				}
+				else
+				{
+					row[groups[groupByIndex].ColumnName] = groupByColumn.DefaultValue;
+				}
+
 				FillDataColumnByGroup(groups[groupByIndex].Name, ref row);
 
 				if (groupByIndex == groups.Count - 1)
