@@ -225,7 +225,11 @@ namespace TOJO.ReportServerExtension.Prototype
 						groupFields.Add(
 							new GroupField(
 								group.Attributes["Ref"].Value,
-								columnName
+								columnName,
+								field.Attributes["Nullable"] != null && (
+									field.Attributes["Nullable"].Value.Equals("true") ||
+									field.Attributes["Nullable"].Value.Equals("1")
+								)
 							)
 						);
 
@@ -585,7 +589,7 @@ namespace TOJO.ReportServerExtension.Prototype
 				}
 				else
 				{
-					rowToBeAdded[column.ColumnName] = GenerateDataColumnValueRandomly(column);
+					rowToBeAdded[column.ColumnName] = GenerateDataColumnValueRandomly(column, column.AllowDBNull);
 				}
 			}
 
@@ -617,7 +621,7 @@ namespace TOJO.ReportServerExtension.Prototype
 				}
 				else
 				{
-					row[groupField.ColumnName] = GenerateDataColumnValueRandomly(dataTable.Columns[groupField.ColumnName]);
+					row[groupField.ColumnName] = GenerateDataColumnValueRandomly(dataTable.Columns[groupField.ColumnName], groupField.AllowDBNull);
 				}
 			}
 		}
@@ -641,7 +645,7 @@ namespace TOJO.ReportServerExtension.Prototype
 			}
 		}
 
-		protected object GenerateDataColumnValueRandomly(sd.DataColumn column)
+		protected object GenerateDataColumnValueRandomly(sd.DataColumn column, bool isNullable)
 		{
 			List<object> availableValues = new List<object>();
 
@@ -649,7 +653,7 @@ namespace TOJO.ReportServerExtension.Prototype
 			{
 				availableValues.Add(column.DefaultValue);
 
-				if (column.AllowDBNull)
+				if (isNullable)
 				{
 					availableValues.Add(DBNull.Value);
 				}
@@ -669,7 +673,7 @@ namespace TOJO.ReportServerExtension.Prototype
 
 				if (availableValues.Count == 0)
 				{
-					if (column.AllowDBNull)
+					if (isNullable)
 					{
 						availableValues.Add(DBNull.Value);
 					}
