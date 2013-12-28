@@ -135,6 +135,7 @@ namespace TOJO.ReportServerExtension.Prototype
 				string fieldName = field.Attributes["Name"].Value; ;
 				string columnName;
 				string dataType;
+				bool isGroupField = false;
 
 				#region Column name and data type
 				XmlNode fieldNode = field.SelectSingleNode("./DataField");
@@ -227,10 +228,13 @@ namespace TOJO.ReportServerExtension.Prototype
 								columnName
 							)
 						);
+
+						isGroupField = true;
 					}
 				}
 				#endregion
 
+				#region Data type
 				XmlNodeList predefinedValues = field.SelectNodes("./Values/Value");
 				List<object> columnValues = new List<object>();
 				List<bool> optional = new List<bool>();
@@ -458,12 +462,15 @@ namespace TOJO.ReportServerExtension.Prototype
 
 						break;
 				}
+				#endregion
 
 				column.ExtendedProperties.Add("Values", columnValues);
 				column.ExtendedProperties.Add("Optional", optional);
-				column.AllowDBNull = field.Attributes["Nullable"] != null && (
-					field.Attributes["Nullable"].Value.Equals("true") ||
-					field.Attributes["Nullable"].Value.Equals("1")
+				column.AllowDBNull = isGroupField || (
+					field.Attributes["Nullable"] != null && (
+						field.Attributes["Nullable"].Value.Equals("true") ||
+						field.Attributes["Nullable"].Value.Equals("1")
+					)
 				);
 
 				dataTable.Columns.Add(column);
@@ -497,19 +504,21 @@ namespace TOJO.ReportServerExtension.Prototype
 		{
 			List<object> availableValues = new List<object>();
 			List<int> availableValueIndices = new List<int>();
-			sd.DataColumn groupByColumn = dataTable.Columns[groups[groupByIndex].ColumnName];
+			sd.DataColumn groupBy = dataTable.Columns[groups[groupByIndex].ColumnName];
 
-			for (int i = 0; i < (groupByColumn.ExtendedProperties["Values"] as List<object>).Count; i++)
+			for (int i = 0; i < (groupBy.ExtendedProperties["Values"] as List<object>).Count; i++)
 			{
-				if ((bool)(groupByColumn.ExtendedProperties["Optional"] as List<bool>)[i] &&
+				if ((bool)(groupBy.ExtendedProperties["Optional"] as List<bool>)[i] &&
 					rnd.Next(2).Equals(0))
 				{
 					continue;
 				}
 
-				availableValues.Add((groupByColumn.ExtendedProperties["Values"] as List<object>)[i]);
+				availableValues.Add((groupBy.ExtendedProperties["Values"] as List<object>)[i]);
 				availableValueIndices.Add(i);
 			}
+
+			ResetDataColumnByGroup(groups[groupByIndex], ref row);
 
 			if (availableValues.Count > 0)
 			{
@@ -528,18 +537,9 @@ namespace TOJO.ReportServerExtension.Prototype
 					}
 				}
 			}
-			else
+			else if (groupBy.AllowDBNull)
 			{
-				if (groupByColumn.AllowDBNull)
-				{
-					row[groups[groupByIndex].ColumnName] = DBNull.Value;
-				}
-				else
-				{
-					row[groups[groupByIndex].ColumnName] = groupByColumn.DefaultValue;
-				}
-
-				FillDataColumnByGroup(groups[groupByIndex], ref row);
+				row[groups[groupByIndex].ColumnName] = DBNull.Value;
 
 				if (groupByIndex == groups.Count - 1)
 				{
@@ -592,7 +592,18 @@ namespace TOJO.ReportServerExtension.Prototype
 			dataTable.Rows.Add(rowToBeAdded);
 		}
 
-		protected void FillDataColumnByGroup(Group group, ref sd.DataRow row, int? groupValueIndex = null)
+		private void ResetDataColumnByGroup(Group group, ref sd.DataRow row)
+		{
+			foreach (GroupField groupField in groupFields.Where((groupField) =>
+			{
+				return groupField.Reference == group.Name;
+			}))
+			{
+				row[groupField.ColumnName] = DBNull.Value;
+			}
+		}
+
+		protected void FillDataColumnByGroup(Group group, ref sd.DataRow row, int? groupValueIndex = null, bool reset = false)
 		{
 			foreach (GroupField groupField in groupFields.Where((groupField) =>
 			{
@@ -600,7 +611,7 @@ namespace TOJO.ReportServerExtension.Prototype
 			}))
 			{
 				if (group.IsEnumeration &&
-					groupValueIndex.HasValue)
+	 groupValueIndex.HasValue)
 				{
 					row[groupField.ColumnName] = GenerateDataColumnValueSequentially(dataTable.Columns[groupField.ColumnName], groupValueIndex.Value);
 				}
